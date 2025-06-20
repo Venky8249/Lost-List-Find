@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Upload, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { AuthGuard } from "@/components/auth-guard"
 
 export default function PostItemPage() {
   const [formData, setFormData] = useState({
@@ -23,17 +24,11 @@ export default function PostItemPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
-    if (!token) {
-      router.push("/login")
-    } else {
-      setIsAuthenticated(true)
-    }
-  }, [router])
+    // Component is now protected by AuthGuard, no need to check auth here
+  }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -136,114 +131,105 @@ export default function PostItemPage() {
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Checking authentication...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-6">
-          <Link href="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-500">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Link>
-        </div>
+    <AuthGuard requireAuth={true}>
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mb-6">
+            <Link href="/dashboard" className="inline-flex items-center text-blue-600 hover:text-blue-500">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Link>
+          </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Post a Lost Item</CardTitle>
-            <CardDescription>Help others find your lost item by providing detailed information</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <Label htmlFor="title">Item Title</Label>
-                <Input
-                  id="title"
-                  name="title"
-                  type="text"
-                  required
-                  value={formData.title}
-                  onChange={handleChange}
-                  placeholder="e.g., Black iPhone 13, Blue Backpack"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  name="description"
-                  required
-                  value={formData.description}
-                  onChange={handleChange}
-                  placeholder="Provide detailed description including color, brand, distinctive features..."
-                  rows={4}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="location">Location Lost</Label>
-                <Input
-                  id="location"
-                  name="location"
-                  type="text"
-                  required
-                  value={formData.location}
-                  onChange={handleChange}
-                  placeholder="e.g., Central Park, Main Street Coffee Shop"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="image">Upload Image (Optional)</Label>
-                <div className="mt-2">
-                  <div className="flex items-center justify-center w-full">
-                    <label
-                      htmlFor="image"
-                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                    >
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                        <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                        <p className="mb-2 text-sm text-gray-500">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
-                      </div>
-                      <input id="image" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
-                    </label>
-                  </div>
-                  {selectedFile && <p className="mt-2 text-sm text-gray-600">Selected: {selectedFile.name}</p>}
+          <Card>
+            <CardHeader>
+              <CardTitle>Post a Lost Item</CardTitle>
+              <CardDescription>Help others find your lost item by providing detailed information</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <Label htmlFor="title">Item Title</Label>
+                  <Input
+                    id="title"
+                    name="title"
+                    type="text"
+                    required
+                    value={formData.title}
+                    onChange={handleChange}
+                    placeholder="e.g., Black iPhone 13, Blue Backpack"
+                  />
                 </div>
-              </div>
 
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
+                <div>
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    name="description"
+                    required
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Provide detailed description including color, brand, distinctive features..."
+                    rows={4}
+                  />
+                </div>
 
-              {success && (
-                <Alert>
-                  <AlertDescription>{success}</AlertDescription>
-                </Alert>
-              )}
+                <div>
+                  <Label htmlFor="location">Location Lost</Label>
+                  <Input
+                    id="location"
+                    name="location"
+                    type="text"
+                    required
+                    value={formData.location}
+                    onChange={handleChange}
+                    placeholder="e.g., Central Park, Main Street Coffee Shop"
+                  />
+                </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? "Posting Item..." : "Post Lost Item"}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+                <div>
+                  <Label htmlFor="image">Upload Image (Optional)</Label>
+                  <div className="mt-2">
+                    <div className="flex items-center justify-center w-full">
+                      <label
+                        htmlFor="image"
+                        className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+                      >
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                          <Upload className="w-8 h-8 mb-4 text-gray-500" />
+                          <p className="mb-2 text-sm text-gray-500">
+                            <span className="font-semibold">Click to upload</span> or drag and drop
+                          </p>
+                          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                        </div>
+                        <input id="image" type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                      </label>
+                    </div>
+                    {selectedFile && <p className="mt-2 text-sm text-gray-600">Selected: {selectedFile.name}</p>}
+                  </div>
+                </div>
+
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                {success && (
+                  <Alert>
+                    <AlertDescription>{success}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? "Posting Item..." : "Post Lost Item"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </AuthGuard>
   )
 }

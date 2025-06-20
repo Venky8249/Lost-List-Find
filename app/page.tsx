@@ -24,9 +24,43 @@ export default function HomePage() {
   const [items, setItems] = useState<Item[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [userRole, setUserRole] = useState<string | null>(null)
 
   useEffect(() => {
     fetchItems()
+  }, [])
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const token = localStorage.getItem("token")
+      if (token) {
+        try {
+          const response = await fetch("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+
+          if (response.ok) {
+            const userData = await response.json()
+            setIsLoggedIn(true)
+            setUserRole(userData.role)
+          } else {
+            localStorage.removeItem("token")
+            setIsLoggedIn(false)
+            setUserRole(null)
+          }
+        } catch (error) {
+          console.error("Error checking auth status:", error)
+          localStorage.removeItem("token")
+          setIsLoggedIn(false)
+          setUserRole(null)
+        }
+      }
+    }
+
+    checkAuthStatus()
   }, [])
 
   const fetchItems = async () => {
@@ -73,15 +107,45 @@ export default function HomePage() {
               <h1 className="text-2xl font-bold text-gray-900">Lost & Found</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href="/login">
-                <Button variant="outline">Login</Button>
-              </Link>
-              <Link href="/register">
-                <Button>Register</Button>
-              </Link>
-              <Link href="/post-item">
-                <Button>Post Lost Item</Button>
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  {userRole === "admin" ? (
+                    <Link href="/admin">
+                      <Button variant="outline">Admin Dashboard</Button>
+                    </Link>
+                  ) : (
+                    <Link href="/dashboard">
+                      <Button variant="outline">Dashboard</Button>
+                    </Link>
+                  )}
+                  <Link href="/post-item">
+                    <Button>Post Lost Item</Button>
+                  </Link>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      localStorage.removeItem("token")
+                      setIsLoggedIn(false)
+                      setUserRole(null)
+                      window.location.reload()
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link href="/login">
+                    <Button variant="outline">Login</Button>
+                  </Link>
+                  <Link href="/register">
+                    <Button>Register</Button>
+                  </Link>
+                  <Link href="/post-item">
+                    <Button>Post Lost Item</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>

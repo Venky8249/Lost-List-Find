@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,49 @@ export default function LoginPage() {
   const [isAdminLogin, setIsAdminLogin] = useState(false)
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const checkExistingLogin = async () => {
+      const token = localStorage.getItem("token")
+      if (token) {
+        try {
+          // Verify token is still valid
+          const response = await fetch("/api/auth/me", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+
+          if (response.ok) {
+            const userData = await response.json()
+            console.log("Existing valid session found, redirecting...")
+
+            // Redirect based on user role
+            if (userData.role === "admin") {
+              router.push("/admin")
+            } else {
+              // Check if there's a redirect URL in the search params
+              const redirectTo = searchParams.get("redirect")
+              if (redirectTo) {
+                router.push(decodeURIComponent(redirectTo))
+              } else {
+                router.push("/dashboard")
+              }
+            }
+          } else {
+            // Token is invalid, remove it
+            localStorage.removeItem("token")
+          }
+        } catch (error) {
+          console.error("Error checking existing session:", error)
+          // Remove invalid token
+          localStorage.removeItem("token")
+        }
+      }
+    }
+
+    checkExistingLogin()
+  }, [router, searchParams])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({

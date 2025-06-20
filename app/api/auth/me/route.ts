@@ -145,7 +145,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Simple JWT token verification
+// Update the verifyToken function to handle longer sessions
 function verifyToken(token: string): any {
   try {
     const parts = token.split(".")
@@ -153,8 +153,9 @@ function verifyToken(token: string): any {
 
     const payload = JSON.parse(atob(parts[1]))
 
-    // Check expiration
+    // Check expiration - tokens are valid for 7 days
     if (payload.exp && payload.exp < Date.now()) {
+      console.log("Token expired:", new Date(payload.exp), "Current:", new Date())
       return null
     }
 

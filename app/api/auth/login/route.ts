@@ -233,7 +233,8 @@ async function hashPassword(password: string): Promise<string> {
 function generateToken(payload: any): string {
   try {
     const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-    const payloadStr = btoa(JSON.stringify({ ...payload, exp: Date.now() + 7 * 24 * 60 * 60 * 1000 }))
+    // Set token to expire in 30 days instead of 7 days
+    const payloadStr = btoa(JSON.stringify({ ...payload, exp: Date.now() + 30 * 24 * 60 * 60 * 1000 }))
     const signature = btoa(`${header}.${payloadStr}.${JWT_SECRET}`)
     return `${header}.${payloadStr}.${signature}`
   } catch (error) {
