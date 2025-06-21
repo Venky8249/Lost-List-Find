@@ -1,8 +1,6 @@
 # Lost and Found app
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
-
-https://v0-lost-and-found-app-two.vercel.app/dashboard
+*Automatically synced with your [v0.dev](https://v0.dev) deployments 
 
 [![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://v0-lost-and-found-app-two.vercel.app/dashboard)
 [![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/u0tlVM54J40)
