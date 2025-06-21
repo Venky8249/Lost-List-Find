@@ -14,7 +14,7 @@ Any changes you make to your deployed app will be automatically pushed to this r
 
 Your project is live at:
 
-**[https://vercel.com/gummadidalavenky22211-9550s-projects/v0-lost-and-found-app](https://vercel.com/gummadidalavenky22211-9550s-projects/v0-lost-and-found-app)**
+**[https://v0-lost-and-found-app-two.vercel.app/login](https://v0-lost-and-found-app-two.vercel.app/login)**
 
 ## Build your app
 
